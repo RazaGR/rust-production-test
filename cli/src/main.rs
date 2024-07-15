@@ -27,19 +27,21 @@ pub fn main() -> anyhow::Result<()> {
 
     let settings = settings::Settings::new(config_location, "CLI")?;
 
+    // as_deref() is used to convert the Option<String> to Option<&str>, which allows borrowing the value without taking ownership.
     println!(
         "db url: {}",
         settings
             .database
             .url
-            .unwrap_or("missing database url".to_string())
+            .as_deref()
+            .unwrap_or("missing database url")
     );
 
     println!(
         "log level: {}",
-        settings.logging.log_level.unwrap_or("info".to_string())
+        &settings.logging.log_level.as_deref().unwrap_or("info")
     );
-    commands::handle(&matches)?;
+    commands::handle(&matches, &settings)?;
 
     Ok(())
 }
