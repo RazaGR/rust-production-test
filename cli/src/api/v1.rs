@@ -3,8 +3,9 @@ use std::sync::Arc;
 use crate::state::ApplicationState;
 
 use super::handlers;
+use crate::api::handlers::jwt::auth;
 use axum::routing::{get, post};
-use axum::Router;
+use axum::{middleware, Router};
 
 pub fn configure(state: Arc<ApplicationState>) -> Router {
     Router::new()
@@ -12,5 +13,14 @@ pub fn configure(state: Arc<ApplicationState>) -> Router {
             "/hello",
             get(handlers::hello::hello).with_state(state.clone()),
         )
-        .route("/login", post(handlers::login::login).with_state(state))
+        .route(
+            "/login",
+            post(handlers::login::login).with_state(state.clone()),
+        )
+        .route(
+            "/dogs",
+            post(handlers::dogs::create)
+                .with_state(state.clone())
+                .route_layer(middleware::from_fn_with_state(state, auth)),
+        )
 }
