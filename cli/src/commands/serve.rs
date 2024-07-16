@@ -22,7 +22,7 @@ pub fn handle(matches: &ArgMatches, _settings: &Settings) -> anyhow::Result<()> 
         let port: u16 = *matches.get_one("port").unwrap_or(&8080);
 
         println!("TBD: start the webserver on port {}", port);
-        start_tokio(port, _settings)?;
+        start_tokio(port, _settings)?
     }
 
     Ok(())
@@ -41,6 +41,8 @@ fn start_tokio(port: u16, _settings: &Settings) -> anyhow::Result<()> {
             axum::serve(listener, router)
                 .with_graceful_shutdown(shutdown_signal())
                 .await?;
+
+            println!("shutting down...");
 
             Ok::<(), anyhow::Error>(())
         })?;
