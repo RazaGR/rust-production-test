@@ -5,6 +5,7 @@ use axum::Router;
 use crate::state::ApplicationState;
 
 mod handlers;
+mod middleware;
 mod request;
 mod response;
 mod v1;
