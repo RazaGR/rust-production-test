@@ -1,5 +1,5 @@
 {
   "database": {
-    "url": "pgsq://"
+    "url": "postgresql://postgres:postgres@127.0.0.1/shelter"
   }
 }
