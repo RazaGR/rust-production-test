@@ -1,4 +1,4 @@
 [workspace]
 
-members = ["auth", "cli", "migration"]
+members = ["auth", "cli", "migration", "entity"]
 resolver = "2"
