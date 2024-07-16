@@ -1,6 +1,9 @@
 use clap::{Arg, Command};
 use cli::{commands, settings};
 use dotenv::dotenv;
+use tracing::level_filters::LevelFilter;
+use tracing::Level;
+use tracing_subscriber::{layer::SubscriberExt, Registry};
 
 pub fn main() -> anyhow::Result<()> {
     dotenv().ok();
@@ -41,6 +44,13 @@ pub fn main() -> anyhow::Result<()> {
         "log level: {}",
         &settings.logging.log_level.as_deref().unwrap_or("info")
     );
+
+    let subscriber = Registry::default()
+        .with(LevelFilter::from_level(Level::DEBUG))
+        .with(tracing_subscriber::fmt::Layer::default().with_writer(std::io::stdout));
+
+    tracing::subscriber::set_global_default(subscriber).expect("Failed to set subscriber");
+
     commands::handle(&matches, &settings)?;
 
     Ok(())
