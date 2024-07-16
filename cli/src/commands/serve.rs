@@ -1,8 +1,11 @@
 use clap::{value_parser, Arg, ArgMatches, Command};
 
-use crate::settings::Settings;
+use crate::{settings::Settings, state::ApplicationState};
 
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::{
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    sync::Arc,
+};
 use tower_http::trace::TraceLayer;
 
 pub fn configure() -> Command {
@@ -28,15 +31,17 @@ pub fn handle(matches: &ArgMatches, _settings: &Settings) -> anyhow::Result<()> 
     Ok(())
 }
 
-fn start_tokio(port: u16, _settings: &Settings) -> anyhow::Result<()> {
+fn start_tokio(port: u16, settings: &Settings) -> anyhow::Result<()> {
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
         .unwrap()
         .block_on(async move {
+            let state = Arc::new(ApplicationState::new(settings)?);
+
             let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), port);
 
-            let routes = crate::api::configure().layer(TraceLayer::new_for_http());
+            let routes = crate::api::configure(state).layer(TraceLayer::new_for_http());
 
             let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
             axum::serve(listener, routes)
